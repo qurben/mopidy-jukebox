@@ -8,6 +8,5 @@ class Vote(Model):
     nick = CharField()
     timestamp = DateField()
 
-
     class Meta:
         database = db

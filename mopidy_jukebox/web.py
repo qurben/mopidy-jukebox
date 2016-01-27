@@ -1,8 +1,10 @@
+from __future__ import absolute_import, unicode_literals
+
 from datetime import date
 
 from tornado import web
 
-from mopidy_jukebox.models.vote import Vote
+from .models import Vote
 
 
 class IndexHandler(web.RequestHandler):

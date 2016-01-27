@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import os
 
@@ -38,10 +38,10 @@ class Extension(ext.Extension):
 
         db_file = os.path.join(self.get_cache_dir(config), db)
 
-        from models import vote
-        vote.db.init(db_file)
-        if not vote.Vote.table_exists():
-            vote.Vote.create_table()
+        from .models import Vote
+        models.db.init(db_file)
+        if not Vote.table_exists():
+            Vote.create_table()
         return [
             (r'/(?:index.html)?', IndexHandler, {'core': core}),
             (r'/vote/(.+)', VoteHandler, {'core': core})
