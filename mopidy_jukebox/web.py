@@ -12,7 +12,7 @@ SearchHandler - Search the library
 from __future__ import absolute_import, unicode_literals
 
 import json
-from datetime import date
+from datetime import date, datetime
 
 from mopidy.models import ModelJSONEncoder
 from tornado import web
@@ -21,13 +21,12 @@ from .models import Vote, User
 
 
 class IndexHandler(web.RequestHandler):
-    def initialize(self, core):
+    def initialize(self, version, core):
         self.core = core
+        self.version = version
 
     def get(self):
-        for vote in Vote.select():
-            print vote.song, vote.nick, vote.timestamp
-        response = {'message': 'Welcome'}
+        response = {'message': 'Welcome', 'version': self.version}
         self.write(response)
         self.set_header("Content-Type", "application/json")
 
