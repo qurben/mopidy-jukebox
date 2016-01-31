@@ -22,6 +22,10 @@ class Extension(ext.Extension):
         return config.read(conf_file)
 
     def setup(self, registry):
+        # Main Jukebox frontend
+        from frontend import JukeboxFrontend
+        registry.add('frontend', JukeboxFrontend)
+
         # HTTP api for frontend
         registry.add('http:app', {
             'name': 'jukebox-api',
