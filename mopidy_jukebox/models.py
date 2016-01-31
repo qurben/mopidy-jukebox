@@ -7,7 +7,7 @@ Vote - Votes on songs
 
 import logging
 
-from peewee import SqliteDatabase, Model, CharField, DateField, ForeignKeyField
+from peewee import SqliteDatabase, Model, CharField, DateTimeField, ForeignKeyField
 
 db = SqliteDatabase(None)
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class Vote(Model):
     # references a Mopidy track
     track_uri = CharField()
     user = ForeignKeyField(User, related_name='voter')
-    timestamp = DateField()
+    timestamp = DateTimeField()
 
     class Meta:
         database = db

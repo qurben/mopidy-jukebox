@@ -51,11 +51,11 @@ class VoteHandler(web.RequestHandler):
 
     def get(self, id):
         my_user = User.current()
-        my_vote = Vote(song=id, user=my_user, timestamp=date.today())
+        my_vote = Vote(track_uri=id, user=my_user, timestamp=datetime.now())
         my_vote.save()
         response = {'id': id,
                     'name': 'Crazy Game',
-                    'release_date': date.today().isoformat()}
+                    'release_date': datetime.now().isoformat()}
         self.write(response)
         self.set_header("Content-Type", "application/json")
 
