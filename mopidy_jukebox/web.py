@@ -29,7 +29,7 @@ class PlaylistHandler(web.RequestHandler):
         self.write('hoeja')
 
 
-class SongHandler(web.RequestHandler):
+class TrackHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
 

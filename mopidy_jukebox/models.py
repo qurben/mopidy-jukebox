@@ -18,7 +18,8 @@ class User(Model):
 
 
 class Vote(Model):
-    song = CharField()
+    # references a Mopidy track
+    track_uri = CharField()
     user = ForeignKeyField(User, related_name='voter')
     timestamp = DateField()
 
