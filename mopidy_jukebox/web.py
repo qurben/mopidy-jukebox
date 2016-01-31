@@ -33,7 +33,8 @@ class VoteHandler(web.RequestHandler):
         self.core = core
 
     def get(self, id):
-        my_vote = Vote(song=id, nick="qurben", timestamp=date.today())
+        my_user = User.current()
+        my_vote = Vote(song=id, user=my_user, timestamp=date.today())
         my_vote.save()
         response = {'id': id,
                     'name': 'Crazy Game',
