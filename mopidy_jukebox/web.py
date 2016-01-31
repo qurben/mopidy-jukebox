@@ -19,10 +19,18 @@ class IndexHandler(web.RequestHandler):
         self.set_header("Content-Type", "application/json")
 
 
-class VoteHandler(web.RequestHandler):
+class PlaylistHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
 
+class SongHandler(web.RequestHandler):
+    def initialize(self, core):
+        self.core = core
+
+
+class VoteHandler(web.RequestHandler):
+    def initialize(self, core):
+        self.core = core
 
     def get(self, id):
         my_vote = Vote(song=id, nick="qurben", timestamp=date.today())
@@ -32,3 +40,12 @@ class VoteHandler(web.RequestHandler):
                     'release_date': date.today().isoformat()}
         self.write(response)
         self.set_header("Content-Type", "application/json")
+
+
+class SkipHandler(web.RequestHandler):
+    def initialize(self, core):
+        self.core = core
+
+class SearchHandler(web.RequestHandler):
+    def initialize(self, core):
+        self.core = core

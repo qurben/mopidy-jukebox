@@ -22,6 +22,7 @@ class Extension(ext.Extension):
         return config.read(conf_file)
 
     def setup(self, registry):
+        # HTTP api for frontend
         registry.add('http:app', {
             'name': 'jukebox-api',
             'factory': self.webapp,
@@ -30,7 +31,8 @@ class Extension(ext.Extension):
         registry.add('http:static', dict(name=self.ext_name, path=directory))
 
     def webapp(self, config, core):
-        from .web import IndexHandler, VoteHandler
+
+        # Get proper db file
         if config[self.ext_name]['db']:
             db = config[self.ext_name]['db']
         else:
@@ -38,11 +40,18 @@ class Extension(ext.Extension):
 
         db_file = os.path.join(self.get_cache_dir(config), db)
 
-        from .models import Vote
-        models.db.init(db_file)
+        from .models import Vote, db
+        db.init(db_file)
         if not Vote.table_exists():
             Vote.create_table()
+
+        from web import IndexHandler, PlaylistHandler, SongHandler, VoteHandler, SkipHandler, SearchHandler
+
         return [
             (r'/(?:index.html)?', IndexHandler, {'core': core}),
-            (r'/vote/(.+)', VoteHandler, {'core': core})
+            (r'/playlist', PlaylistHandler, {'core': core}),
+            (r'/song/(.+)', SongHandler, {'core': core}),
+            (r'/vote/(.+)', VoteHandler, {'core': core}),
+            (r'/skip/(.+)', SkipHandler, {'core': core}),
+            (r'/search', SearchHandler, {'core': core}),
         ]
