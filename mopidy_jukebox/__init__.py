@@ -35,19 +35,14 @@ class Extension(ext.Extension):
         registry.add('http:static', dict(name=self.ext_name, path=directory))
 
     def webapp(self, config, core):
-
         # Get proper db file
         if config[self.ext_name]['db']:
-            db = config[self.ext_name]['db']
+            db_file = config[self.ext_name]['db']
         else:
-            db = self.get_default_config()["db"]
+            db_file = os.path.join(self.get_cache_dir(config), self.get_default_config()["db"])
 
-        db_file = os.path.join(self.get_cache_dir(config), db)
-
-        from .models import Vote, db
-        db.init(db_file)
-        if not Vote.table_exists():
-            Vote.create_table()
+        from .models import init
+        init(db_file)
 
         from .web import IndexHandler, PlaylistHandler, SongHandler, VoteHandler, SkipHandler, SearchHandler
 
