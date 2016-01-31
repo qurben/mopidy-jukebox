@@ -1,3 +1,14 @@
+"""
+RequestHandlers for the Jukebox application
+
+IndexHandler - Show version
+PlaylistHandler - Show current playlist
+SongHandler - Show track information
+VoteHandler - Add and remove votes
+SkipHandler - Add and remove skips
+SearchHandler - Search the library
+"""
+
 from __future__ import absolute_import, unicode_literals
 
 import json

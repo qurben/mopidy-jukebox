@@ -1,3 +1,10 @@
+"""
+Models for the Jukebox application
+
+User - All users
+Vote - Votes on songs
+"""
+
 import logging
 
 from peewee import SqliteDatabase, Model, CharField, DateField, ForeignKeyField
