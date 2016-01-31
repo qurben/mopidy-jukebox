@@ -1,10 +1,12 @@
 from __future__ import absolute_import, unicode_literals
 
+import json
 from datetime import date
 
+from mopidy.models import ModelJSONEncoder
 from tornado import web
 
-from .models import Vote
+from .models import Vote, User
 
 
 class IndexHandler(web.RequestHandler):
@@ -22,6 +24,10 @@ class IndexHandler(web.RequestHandler):
 class PlaylistHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
+
+    def get(self):
+        self.write('hoeja')
+
 
 class SongHandler(web.RequestHandler):
     def initialize(self, core):
@@ -47,6 +53,7 @@ class SkipHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
 
+
 class SearchHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
@@ -60,8 +67,8 @@ class SearchHandler(web.RequestHandler):
         self.set_status(code, message)
 
     def post(self):
-        field = self.get_body_argument('field','')
-        values = self.get_body_argument('values','')
+        field = self.get_body_argument('field', '')
+        values = self.get_body_argument('values', '')
 
         if not field:
             return self.error(400, 'Please provide a field')
@@ -70,9 +77,6 @@ class SearchHandler(web.RequestHandler):
 
         search_result = self.core.library.search(search).get()[0]
 
-        pprint( search_result)
-
-        pprint(search_result.artists)
         self.set_header("Content-Type", "application/json")
         self.write("""{
             "uri": "%s",

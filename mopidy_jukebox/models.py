@@ -5,6 +5,7 @@ from peewee import SqliteDatabase, Model, CharField, DateField, ForeignKeyField
 db = SqliteDatabase(None)
 logger = logging.getLogger(__name__)
 
+
 class User(Model):
     name = CharField()
 
@@ -15,6 +16,7 @@ class User(Model):
     class Meta:
         database = db
 
+
 class Vote(Model):
     song = CharField()
     user = ForeignKeyField(User, related_name='voter')
@@ -22,6 +24,7 @@ class Vote(Model):
 
     class Meta:
         database = db
+
 
 def init(db_file):
     # Create db
