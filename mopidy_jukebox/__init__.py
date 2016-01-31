@@ -23,7 +23,7 @@ class Extension(ext.Extension):
 
     def setup(self, registry):
         # Main Jukebox frontend
-        from frontend import JukeboxFrontend
+        from .frontend import JukeboxFrontend
         registry.add('frontend', JukeboxFrontend)
 
         # HTTP api for frontend
@@ -49,7 +49,7 @@ class Extension(ext.Extension):
         if not Vote.table_exists():
             Vote.create_table()
 
-        from web import IndexHandler, PlaylistHandler, SongHandler, VoteHandler, SkipHandler, SearchHandler
+        from .web import IndexHandler, PlaylistHandler, SongHandler, VoteHandler, SkipHandler, SearchHandler
 
         return [
             (r'/(?:index.html)?', IndexHandler, {'core': core}),
