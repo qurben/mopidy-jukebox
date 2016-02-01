@@ -12,7 +12,7 @@ SearchHandler - Search the library
 from __future__ import absolute_import, unicode_literals
 
 import json
-from datetime import date, datetime
+from datetime import datetime
 
 from mopidy.models import ModelJSONEncoder
 from tornado import web
@@ -26,8 +26,7 @@ class IndexHandler(web.RequestHandler):
         self.version = version
 
     def get(self):
-        response = {'message': 'Welcome', 'version': self.version}
-        self.write(response)
+        self.write({'message': 'Welcome to the Jukebox API', 'version': self.version})
         self.set_header("Content-Type", "application/json")
 
 
@@ -93,6 +92,7 @@ class VoteHandler(web.RequestHandler):
             self.set_status(404, "No vote deleted")
         else:
             self.set_status(204, "Vote deleted")
+
 
 class SkipHandler(web.RequestHandler):
     def initialize(self, core):
