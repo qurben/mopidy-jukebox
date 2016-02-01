@@ -35,7 +35,16 @@ class TracklistHandler(web.RequestHandler):
         self.core = core
 
     def get(self):
-        self.write('hoeja')
+        tracklist = self.core.tracklist.get_tl_tracks().get()
+
+        self.write({
+            'tracklist': [{'id': id, 'track': {
+                'name': track.name,
+                'artists': [artist.name for artist in track.artists],
+                'album': track.album.name
+            }} for (id, track) in tracklist]
+        })
+        self.set_header("Content-Type", "application/json")
 
 
 class TrackHandler(web.RequestHandler):
