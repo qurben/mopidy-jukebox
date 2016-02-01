@@ -15,6 +15,17 @@ API
 
 The web api is as following
 
+Tracklist
+~~~~~~~~~
+
+The current tracklist is found at
+
+.. code-block::
+
+    /jukebox-api/tracklist
+
+This endpoint supports :code:`GET` and will return a list of the next tracks.
+
 Voting
 ~~~~~~
 
