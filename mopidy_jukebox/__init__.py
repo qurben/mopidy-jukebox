@@ -48,7 +48,7 @@ class Extension(ext.Extension):
 
         return [
             (r'/', IndexHandler, {'version': __version__, 'core': core}),
-            (r'/playlist', TracklistHandler, {'core': core}),
+            (r'/tracklist', TracklistHandler, {'core': core}),
             (r'/track', TrackHandler, {'core': core}),
             (r'/vote', VoteHandler, {'core': core}),
             (r'/skip/(.+)', SkipHandler, {'core': core}),
