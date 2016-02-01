@@ -91,6 +91,8 @@ class VoteHandler(web.RequestHandler):
 
         my_vote = Vote(track_uri=track_uri, user=User.current(), timestamp=datetime.now())
         if my_vote.save() is 1:
+            # Add this track to now playing TODO: remove
+            self.core.tracklist.add(uris=[track_uri])
             self.set_status(204)
         else:
             self.set_status(500)
