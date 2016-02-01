@@ -68,13 +68,12 @@ class VoteHandler(web.RequestHandler):
         Vote for a specific track
         :return:
         """
-        my_user = User.current()
         track_uri = self.get_body_argument('track', '')
         if not track_uri:
             self.write({"error": "'track' key not found"})
             return self.set_status(400)
 
-        my_vote = Vote(track_uri=track_uri, user=my_user, timestamp=datetime.now())
+        my_vote = Vote(track_uri=track_uri, user=User.current(), timestamp=datetime.now())
         if my_vote.save() is 1:
             self.set_status(204)
         else:
@@ -85,9 +84,12 @@ class VoteHandler(web.RequestHandler):
         Delete the vote for a specific track
         :return:
         """
-        my_user = User.current()
         track_uri = self.get_body_argument('track', '')
-        q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == my_user)
+        if not track_uri:
+            self.write({"error": "'track' key not found"})
+            return self.set_status(400)
+
+        q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == User.current())
         if q.execute() is 0:
             self.set_status(404, "No vote deleted")
         else:
