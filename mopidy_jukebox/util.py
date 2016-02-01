@@ -1,3 +1,15 @@
+from models import Vote
+
+
+def votes_json(track):
+    votes = Vote.select().where(Vote.track_uri == track.uri)
+
+    for vote in votes:
+        yield {
+            'user': vote.user.name,
+            'time': vote.timestamp.isoformat()
+        }
+
 def track_json(track):
     """
     Generate JSON from a Mopidy track
@@ -7,5 +19,6 @@ def track_json(track):
     return {
         'track_name': track.name,
         'artists': [artist.name for artist in track.artists],
-        'album': track.album.name
+        'album': track.album.name,
+        'votes': list(votes_json(track))
     }
