@@ -2,7 +2,7 @@
 RequestHandlers for the Jukebox application
 
 IndexHandler - Show version
-PlaylistHandler - Show current playlist
+TracklistHandler - Show current tracklist
 SongHandler - Show track information
 VoteHandler - Add and remove votes
 SkipHandler - Add and remove skips
