@@ -93,6 +93,9 @@ class VoteHandler(web.RequestHandler):
             self.write({"error": "'track' key not found"})
             return self.set_status(400)
 
+        if Vote.select().where(Vote.track_uri == track_uri, Vote.user == User.current()):
+            return self.set_status(409, 'Vote already exists')
+
         my_vote = Vote(track_uri=track_uri, user=User.current(), timestamp=datetime.now())
         if my_vote.save() is 1:
             # Add this track to now playing TODO: remove
