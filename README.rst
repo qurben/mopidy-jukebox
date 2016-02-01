@@ -21,6 +21,7 @@ Voting
 For voting for a track can be done at
 
 .. code-block::
+
     /jukebox-api/vote
 
 This endpoint supports `POST`, `PUT` and `DELETE`
