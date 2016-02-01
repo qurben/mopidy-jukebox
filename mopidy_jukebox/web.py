@@ -18,6 +18,7 @@ from mopidy.models import ModelJSONEncoder
 from tornado import web
 
 from .models import Vote, User
+from .util import track_json
 
 
 class IndexHandler(web.RequestHandler):
@@ -38,11 +39,7 @@ class TracklistHandler(web.RequestHandler):
         tracklist = self.core.tracklist.get_tl_tracks().get()
 
         self.write({
-            'tracklist': [{'id': id, 'track': {
-                'name': track.name,
-                'artists': [artist.name for artist in track.artists],
-                'album': track.album.name
-            }} for (id, track) in tracklist]
+            'tracklist': [{'id': id, 'track': track_json(track)} for (id, track) in tracklist]
         })
         self.set_header("Content-Type", "application/json")
 
@@ -56,16 +53,14 @@ class TrackHandler(web.RequestHandler):
         Get information for a specific track
         :return:
         """
-        track_uri = self.get_body_argument('track','')
+        track_uri = self.get_body_argument('track', '')
         if not track_uri:
             self.write({"error": "'track' key not found"})
             return self.set_status(400)
 
         track = self.core.library.lookup(track_uri).get()[0]
 
-        self.write({'track': track.name,
-                    'artists': [artist.name for artist in track.artists],
-                    'album': track.album.name})
+        self.write(track_json(track))
 
 
 class VoteHandler(web.RequestHandler):
@@ -81,9 +76,7 @@ class VoteHandler(web.RequestHandler):
         track_uri = self.get_body_argument('track', '')
         vote = Vote.get(Vote.track_uri == track_uri)
         track = self.core.library.lookup(track_uri).get()[0]
-        self.write({'track': track.name,
-                    'artists': [artist.name for artist in track.artists],
-                    'album': track.album.name,
+        self.write({'track': track_json(track),
                     'user': user.name,
                     'timestamp': vote.timestamp.isoformat()})
         self.set_header("Content-Type", "application/json")
