@@ -48,16 +48,51 @@ class VoteHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
 
-    def get(self, id):
-        my_user = User.current()
-        my_vote = Vote(track_uri=id, user=my_user, timestamp=datetime.now())
-        my_vote.save()
-        response = {'id': id,
-                    'name': 'Crazy Game',
-                    'release_date': datetime.now().isoformat()}
-        self.write(response)
+    def post(self):
+        """
+        Get the vote for a specific track
+        :return:
+        """
+        user = User.current()
+        track_uri = self.get_body_argument('track', '')
+        vote = Vote.get(Vote.track_uri == track_uri)
+        track = self.core.library.lookup(track_uri).get()[0]
+        self.write({'track': track.name,
+                    'artists': [artist.name for artist in track.artists],
+                    'album': track.album.name,
+                    'user': user.name,
+                    'timestamp': vote.timestamp.isoformat()})
         self.set_header("Content-Type", "application/json")
 
+    def put(self):
+        """
+        Vote for a specific track
+        :return:
+        """
+        my_user = User.current()
+        track_uri = self.get_body_argument('track', '')
+        if not track_uri:
+            self.write({"error": "'track' key not found"})
+            return self.set_status(400)
+
+        my_vote = Vote(track_uri=track_uri, user=my_user, timestamp=datetime.now())
+        if my_vote.save() is 1:
+            self.set_status(204)
+        else:
+            self.set_status(500)
+
+    def delete(self):
+        """
+        Delete the vote for a specific track
+        :return:
+        """
+        my_user = User.current()
+        track_uri = self.get_body_argument('track', '')
+        q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == my_user)
+        if q.execute() is 0:
+            self.set_status(404, "No vote deleted")
+        else:
+            self.set_status(204, "Vote deleted")
 
 class SkipHandler(web.RequestHandler):
     def initialize(self, core):

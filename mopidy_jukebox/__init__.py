@@ -50,7 +50,7 @@ class Extension(ext.Extension):
             (r'/(?:index.html)?', IndexHandler, {'version': __version__, 'core': core}),
             (r'/playlist', PlaylistHandler, {'core': core}),
             (r'/track/(.+)', TrackHandler, {'core': core}),
-            (r'/vote/(.+)', VoteHandler, {'core': core}),
+            (r'/vote', VoteHandler, {'core': core}),
             (r'/skip/(.+)', SkipHandler, {'core': core}),
             (r'/search', SearchHandler, {'core': core}),
         ]
