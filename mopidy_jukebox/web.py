@@ -20,6 +20,8 @@ from tornado import web
 from .models import Vote, User
 from .util import track_json
 
+from .library import Tracklist
+
 
 class IndexHandler(web.RequestHandler):
     def initialize(self, version, core):
@@ -94,8 +96,8 @@ class VoteHandler(web.RequestHandler):
         my_vote = Vote(track_uri=track_uri, user=User.current(), timestamp=datetime.now())
         if my_vote.save() is 1:
             # Add this track to now playing TODO: remove
-            self.core.tracklist.add(uris=[track_uri])
-            self.set_status(204)
+            Tracklist.update_tracklist(self.core.tracklist)
+            self.set_status(201)
         else:
             self.set_status(500)
 
@@ -113,6 +115,7 @@ class VoteHandler(web.RequestHandler):
         if q.execute() is 0:
             self.set_status(404, "No vote deleted")
         else:
+            Tracklist.update_tracklist(self.core.tracklist)
             self.set_status(204, "Vote deleted")
 
 
