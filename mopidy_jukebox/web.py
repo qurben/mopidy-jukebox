@@ -42,6 +42,22 @@ class TrackHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
 
+    def post(self):
+        """
+        Get information for a specific track
+        :return:
+        """
+        track_uri = self.get_body_argument('track','')
+        if not track_uri:
+            self.write({"error": "'track' key not found"})
+            return self.set_status(400)
+
+        track = self.core.library.lookup(track_uri).get()[0]
+
+        self.write({'track': track.name,
+                    'artists': [artist.name for artist in track.artists],
+                    'album': track.album.name})
+
 
 class VoteHandler(web.RequestHandler):
     def initialize(self, core):
