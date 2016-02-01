@@ -47,7 +47,7 @@ class Extension(ext.Extension):
         from .web import IndexHandler, PlaylistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler
 
         return [
-            (r'/(?:index.html)?', IndexHandler, {'version': __version__, 'core': core}),
+            (r'/', IndexHandler, {'version': __version__, 'core': core}),
             (r'/playlist', PlaylistHandler, {'core': core}),
             (r'/track/(.+)', TrackHandler, {'core': core}),
             (r'/vote', VoteHandler, {'core': core}),
