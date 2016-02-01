@@ -24,7 +24,7 @@ Voting for a track can be done at
 
     /jukebox-api/vote
 
-This endpoint supports `POST`, `PUT` and `DELETE`. The track-uri from Mopidy is sent along in the body of the request as form data. The key for the track is `track`.
+This endpoint supports :code:`POST`, :code:`PUT` and :code:`DELETE`. The track-uri from Mopidy is sent along in the body of the request as form data. The key for the track is :code:`track`.
 
 Searching
 ~~~~~~~~~
@@ -35,9 +35,9 @@ Searching for a track can be done at
 
     /jukebox-api/search
 
-This endpoint supports `POST`. The search query is sent along in the body of the request as form data. `field` holds the field to search in and `values` holds the string to search for.
+This endpoint supports :code:`POST`. The search query is sent along in the body of the request as form data. :code:`field` holds the field to search in and :code:`values` holds the string to search for.
 
-Possible values for `field` are:
+Possible values for :code:`field` are:
 
 * comment
 * album
