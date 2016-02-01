@@ -44,11 +44,11 @@ class Extension(ext.Extension):
         from .models import init
         init(db_file)
 
-        from .web import IndexHandler, PlaylistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler
+        from .web import IndexHandler, TracklistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler
 
         return [
             (r'/', IndexHandler, {'version': __version__, 'core': core}),
-            (r'/playlist', PlaylistHandler, {'core': core}),
+            (r'/playlist', TracklistHandler, {'core': core}),
             (r'/track', TrackHandler, {'core': core}),
             (r'/vote', VoteHandler, {'core': core}),
             (r'/skip/(.+)', SkipHandler, {'core': core}),

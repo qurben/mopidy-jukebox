@@ -30,7 +30,7 @@ class IndexHandler(web.RequestHandler):
         self.set_header("Content-Type", "application/json")
 
 
-class PlaylistHandler(web.RequestHandler):
+class TracklistHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
 
