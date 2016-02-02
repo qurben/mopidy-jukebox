@@ -63,6 +63,22 @@ Possible values for :code:`field` are:
 * date
 * any
 
+Web frontend
+------------
+
+The web frontend is packaged with webpack, install webpack
+
+.. code-block::
+
+    npm install webpack -g
+    npm install
+
+To build the js and css, run
+
+.. code-block::
+
+    webpack
+
 License
 -------
 
