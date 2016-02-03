@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <title>Jukebox</title>
     <meta charset="utf-8"/>
-  </head>
-  <body>
-    <script type="text/javascript" src="dist/bundle.js"></script>
-  </body>
+    <script type="text/javascript" src="dist/bundle.js" defer></script>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <th>Track name</th>
+        <th>Artist</th>
+    </tr>
+    </thead>
+    <tbody data-bind="foreach: tracks">
+    <tr data-bind="with: track">
+        <td data-bind="text: track_name"></td>
+        <td data-bind="text: artists"></td>
+        <td data-bind="foreach: votes"><span data-bind="text: user"></span></td>
+    </tr>
+    </tbody>
+</table>
+</body>
 </html>
