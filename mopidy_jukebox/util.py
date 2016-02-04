@@ -20,5 +20,6 @@ def track_json(track):
         'track_name': track.name,
         'artists': [artist.name for artist in track.artists],
         'album': track.album.name,
+        'images': [image for image in track.album.images],
         'votes': list(votes_json(track))
     }
