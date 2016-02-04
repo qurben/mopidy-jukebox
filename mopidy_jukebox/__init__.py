@@ -4,6 +4,8 @@ import os
 
 from mopidy import config, ext
 
+from .library import Tracklist
+
 __version__ = '0.0.1'
 
 
@@ -43,6 +45,8 @@ class Extension(ext.Extension):
 
         from .models import init
         init(db_file)
+
+        Tracklist.update_tracklist(core.tracklist)
 
         from .web import IndexHandler, TracklistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler
 
