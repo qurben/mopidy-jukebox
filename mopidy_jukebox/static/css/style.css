@@ -89,8 +89,8 @@ main li {
 }
 
 main li img {
-    width: 100px;
-    height: 100px;
+    width: 70px;
+    height: 70px;
     float: left;
     margin: 5px;
 }
@@ -98,8 +98,8 @@ main li img {
 main .vote {
     float: right;
     background: green;
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
     margin: 5px;
 }
 
@@ -113,6 +113,6 @@ main .votes li {
 }
 
 main .votes img {
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
 }
