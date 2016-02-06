@@ -61,10 +61,10 @@ class GoogleOAuth2LoginHandler(web.RequestHandler,
                     access_token=access["access_token"])
 
                 try:
-                    user = User.get(id=google_user['id'])
+                    user = User.get(uid=google_user['id'])
                 except User.DoesNotExist:
                     print 'user does not exist'
-                    user = User.create(id=google_user['id'], name=google_user['name'], email=google_user['email'],
+                    user = User.create(uid=google_user['id'], name=google_user['name'], email=google_user['email'],
                                        picture=google_user['picture'])
                     user.save()
 
@@ -160,10 +160,12 @@ class VoteHandler(web.RequestHandler):
             self.write({"error": "'track' key not found"})
             return self.set_status(400)
 
-        if Vote.select().where(Vote.track_uri == track_uri, Vote.user == User.current()):
+        user_session = Session.get(Session.secret == self.get_cookie('session'))
+
+        if Vote.select().where(Vote.track_uri == track_uri, Vote.user == user_session.user):
             return self.set_status(409, 'Vote already exists')
 
-        my_vote = Vote(track_uri=track_uri, user=User.current(), timestamp=datetime.now())
+        my_vote = Vote(track_uri=track_uri, user=user_session.user, timestamp=datetime.now())
         if my_vote.save() is 1:
             # Add this track to now playing TODO: remove
             Tracklist.update_tracklist(self.core.tracklist)
@@ -181,7 +183,9 @@ class VoteHandler(web.RequestHandler):
             self.write({"error": "'track' key not found"})
             return self.set_status(400)
 
-        q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == User.current())
+        user_session = Session.get(Session.secret == self.get_cookie('session'))
+
+        q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == user_session.user)
         if q.execute() is 0:
             self.set_status(404, "No vote deleted")
         else:

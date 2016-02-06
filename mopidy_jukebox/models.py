@@ -15,14 +15,10 @@ logger = logging.getLogger(__name__)
 
 
 class User(Model):
-    id = CharField(primary_key=True)
+    uid = CharField()
     name = CharField()
     picture = CharField()
     email = CharField()
-
-    @staticmethod
-    def current():
-        return User.get(User.name == 'q')
 
     class Meta:
         database = db
