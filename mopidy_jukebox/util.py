@@ -10,6 +10,7 @@ def votes_json(track):
             'time': vote.timestamp.isoformat()
         }
 
+
 def track_json(track):
     """
     Generate JSON from a Mopidy track
