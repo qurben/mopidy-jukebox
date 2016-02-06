@@ -12,15 +12,81 @@ SearchHandler - Search the library
 from __future__ import absolute_import, unicode_literals
 
 import json
+import uuid
 from datetime import datetime
 
 from mopidy.models import ModelJSONEncoder
-from tornado import web
-
-from .models import Vote, User
-from .util import track_json
+from tornado import web, escape, gen, auth
 
 from .library import Tracklist
+from .models import Vote, User, Session
+from .util import track_json
+
+
+class LoginHandler(web.RequestHandler):
+    def initialize(self):
+        pass
+
+    def get(self):
+        cookie = self.get_cookie('session')
+        if cookie:
+            try:
+                session = Session.get(Session.secret == cookie)
+                self.redirect('/jukebox')
+            except Session.DoesNotExist:
+                self.redirect('/jukebox-api/auth/google')
+        else:
+            self.redirect('/jukebox-api/auth/google')
+
+
+class GoogleOAuth2LoginHandler(web.RequestHandler,
+                               auth.GoogleOAuth2Mixin):
+    def initialize(self, google_oauth, google_oauth_secret):
+        self.settings[self._OAUTH_SETTINGS_KEY] = {
+            'key': google_oauth,
+            'secret': google_oauth_secret,
+        }
+
+    @gen.coroutine
+    def get(self):
+        # own url without GET variables
+        redirect_uri = self.request.protocol + "://" + self.request.host + self.request.uri.split('?')[0]
+        if self.get_argument('code', False):
+            try:
+                access = yield self.get_authenticated_user(
+                    redirect_uri=redirect_uri,
+                    code=self.get_argument('code'))
+                google_user = yield self.oauth2_request(
+                    "https://www.googleapis.com/oauth2/v1/userinfo",
+                    access_token=access["access_token"])
+
+                try:
+                    user = User.get(id=google_user['id'])
+                except User.DoesNotExist:
+                    print 'user does not exist'
+                    user = User.create(id=google_user['id'], name=google_user['name'], email=google_user['email'],
+                                       picture=google_user['picture'])
+                    user.save()
+
+                # a user can have 1 session
+                Session.delete().where(Session.user == user).execute()
+
+                session = Session(user=user, secret=uuid.uuid1())
+                session.save()
+
+                self.set_cookie('session', str(session.secret))
+
+                self.redirect('/jukebox')
+            except auth.AuthError:
+                self.set_status(400, "Bad Request")
+                self.write("400: Bad Request")
+        else:
+            yield self.authorize_redirect(
+                redirect_uri=redirect_uri,
+                client_id=self.settings[self._OAUTH_SETTINGS_KEY]['key'],
+                scope=['profile', 'email'],
+                response_type='code',
+                extra_params={'approval_prompt': 'auto'})
 
 
 class IndexHandler(web.RequestHandler):
