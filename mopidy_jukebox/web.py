@@ -88,7 +88,8 @@ class VoteHandler(web.RequestHandler):
         Vote for a specific track
         :return:
         """
-        track_uri = self.get_body_argument('track', '')
+        data = escape.json_decode(self.request.body)
+        track_uri = data['track']
         if not track_uri:
             self.write({"error": "'track' key not found"})
             return self.set_status(400)

@@ -18,6 +18,7 @@ def track_json(track):
     """
     return {
         'track_name': track.name,
+        'track_uri': track.uri,
         'artists': [artist.name for artist in track.artists],
         'album': track.album.name,
         'images': [image for image in track.album.images],
