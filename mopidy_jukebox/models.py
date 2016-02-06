@@ -5,16 +5,20 @@ User - All users
 Vote - Votes on songs
 """
 
+import datetime
 import logging
 
-from peewee import SqliteDatabase, Model, CharField, DateTimeField, ForeignKeyField
+from peewee import SqliteDatabase, Model, CharField, DateTimeField, ForeignKeyField, UUIDField
 
 db = SqliteDatabase(None)
 logger = logging.getLogger(__name__)
 
 
 class User(Model):
+    id = CharField(primary_key=True)
     name = CharField()
+    picture = CharField()
+    email = CharField()
 
     @staticmethod
     def current():
@@ -34,6 +38,15 @@ class Vote(Model):
         database = db
 
 
+class Session(Model):
+    user = ForeignKeyField(User)
+    secret = UUIDField()
+    expires = DateTimeField(default=datetime.datetime.now() + datetime.timedelta(days=30))  # expires after 30 days
+
+    class Meta:
+        database = db
+
+
 def init(db_file):
     # Create db
     db.init(db_file)
@@ -43,5 +56,5 @@ def init(db_file):
         Vote.create_table()
     if not User.table_exists():
         User.create_table()
-        # create dummy user
-        User(name="q").save()
+    if not Session.table_exists():
+        Session.create_table()
