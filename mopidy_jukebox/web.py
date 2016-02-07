@@ -14,6 +14,7 @@ from __future__ import absolute_import, unicode_literals
 import json
 import uuid
 from datetime import datetime
+from functools import wraps
 
 from mopidy.models import ModelJSONEncoder
 from tornado import web, escape, gen, auth
@@ -21,6 +22,26 @@ from tornado import web, escape, gen, auth
 from .library import Tracklist
 from .models import Vote, User, Session
 from .util import track_json
+
+
+def authenticate(f):
+    """
+    Decorator for checking if a user is authenticated
+    """
+
+    @wraps(f)
+    def wrapper(self):
+        """
+        :type self: RequestHandler
+        """
+        try:
+            self.request.session = Session.get(Session.secret == self.get_cookie('session'))
+
+            f(self)
+        except Session.DoesNotExist:
+            self.set_status(403)
+
+    return wrapper
 
 
 class LoginHandler(web.RequestHandler):
@@ -103,6 +124,7 @@ class TracklistHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
 
+    @authenticate
     def get(self):
         tracklist = self.core.tracklist.get_tl_tracks().get()
 
@@ -135,13 +157,16 @@ class VoteHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
 
+    @authenticate
     def post(self):
         """
         Get the vote for a specific track
         :return:
         """
-        user = User.current()
-        track_uri = self.get_body_argument('track', '')
+        user = self.request.session.user
+        data = escape.json_decode(self.request.body)
+
+        track_uri = data['track']
         vote = Vote.get(Vote.track_uri == track_uri)
         track = self.core.library.lookup(track_uri).get()[0]
         self.write({'track': track_json(track),
@@ -149,6 +174,7 @@ class VoteHandler(web.RequestHandler):
                     'timestamp': vote.timestamp.isoformat()})
         self.set_header("Content-Type", "application/json")
 
+    @authenticate
     def put(self):
         """
         Vote for a specific track
@@ -160,12 +186,12 @@ class VoteHandler(web.RequestHandler):
             self.write({"error": "'track' key not found"})
             return self.set_status(400)
 
-        user_session = Session.get(Session.secret == self.get_cookie('session'))
+        active_user = self.request.session.user
 
-        if Vote.select().where(Vote.track_uri == track_uri, Vote.user == user_session.user):
+        if Vote.select().where(Vote.track_uri == track_uri, Vote.user == active_user):
             return self.set_status(409, 'Vote already exists')
 
-        my_vote = Vote(track_uri=track_uri, user=user_session.user, timestamp=datetime.now())
+        my_vote = Vote(track_uri=track_uri, user=active_user, timestamp=datetime.now())
         if my_vote.save() is 1:
             # Add this track to now playing TODO: remove
             Tracklist.update_tracklist(self.core.tracklist)
@@ -173,6 +199,7 @@ class VoteHandler(web.RequestHandler):
         else:
             self.set_status(500)
 
+    @authenticate
     def delete(self):
         """
         Delete the vote for a specific track
@@ -183,9 +210,9 @@ class VoteHandler(web.RequestHandler):
             self.write({"error": "'track' key not found"})
             return self.set_status(400)
 
-        user_session = Session.get(Session.secret == self.get_cookie('session'))
+        active_user = self.request.session.user
 
-        q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == user_session.user)
+        q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == active_user)
         if q.execute() is 0:
             self.set_status(404, "No vote deleted")
         else:
