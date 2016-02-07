@@ -33,7 +33,7 @@
                 <img data-bind="attr: { src: images()[0] }"/>
                 <div class="name" data-bind="text: name"></div>
                 <div class="artists" data-bind="text: artists"></div>
-                <div class="vote" data-bind="click: $root.vote, attr: { class: voted() }">vote</div>
+                <div data-bind="click: $root.vote, attr: { class: voted() ? 'voted':'vote' }">vote</div>
                 <ul class="votes" data-bind="foreach: votes">
                     <li><img src="" title="" data-bind="attr: { src: picture, title: user }"/></li>
                 </ul>

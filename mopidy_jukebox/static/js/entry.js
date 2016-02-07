@@ -2,8 +2,7 @@ import "../css/style.css"
 
 import ko from 'knockout'
 
-import Q from 'q'
-import 'q-xhr'
+import oboe from 'oboe'
 
 class Track {
     constructor(name, uri, artists, album, images, votes, user) {
@@ -32,10 +31,8 @@ class User {
 
     load() {
         let self = this;
-        Q.xhr.get('/jukebox-api/user')
-            .then((resp) => {
-                let user = resp.data;
-
+        oboe('/jukebox-api/user')
+            .done((user) => {
                 self.uid(user.uid);
                 self.name(user.name);
                 self.email(user.email);
@@ -50,45 +47,59 @@ class TracklistViewModel {
 
         this.tracks = ko.observableArray();
         this.user = ko.observable(new User());
-    }
 
-    load() {
-        let self = this
-
-        self.user().load();
-
-        Q.xhr.get('/jukebox-api/tracklist')
-            .then((resp) => {
-                let tracks = [];
-                for (let item of resp.data.tracklist) {
-                    let track = item.track;
-                    tracks.push(new Track(track.track_name, track.track_uri, track.artists, track.album, track.images, track.votes, self.user))
-                }
-                self.tracks(tracks);
-            });
-    }
-
-    voted(track) {
-        console.log(track)
-        console.log(this.user())
-        for (let voter of track.votes()) {
-            if (voter.user == this.user().name)
-                return 'hoi'
+        this.vote = (track) => {
+            console.log(self);
+            if (track.voted()) {
+                oboe({
+                    'url': '/jukebox-api/vote',
+                    'method': 'DELETE',
+                    'body': {
+                        'track': track.uri()
+                    }
+                }).done((resp) => {
+                    self.load();
+                }).fail((err) => {
+                    if (err.status == 404) // Vote not deleted
+                        console.error("Vote not deleted", err);
+                })
+            } else {
+                oboe({
+                    'url': '/jukebox-api/vote',
+                    'method': 'PUT',
+                    'body': {
+                        'track': track.uri()
+                    }
+                }).done((resp) => {
+                    self.load();
+                }).fail((err) => {
+                    if (err.status == 409) // Vote already exists
+                        console.error("Vote already exists", err);
+                })
+            }
         }
-        return 'doei'
-    }
 
-    vote(track) {
-        let self = this;
-        console.log(track)
-        Q.xhr.put('/jukebox-api/vote', {
-            'track': track.uri()
-        }).then((resp) => {
-            self.load();
-        }, (err) => {
-            if (err.status == 409) // Vote already exists
-                console.error("Vote already exists", err);
-        });
+        this.load = () => {
+            self.user().load();
+
+            oboe('/jukebox-api/tracklist')
+                .done((resp) => {
+                    let tracks = [];
+                    for (let item of resp.tracklist) {
+                        let track = item.track;
+                        tracks.push(new Track(track.track_name, track.track_uri, track.artists, track.album, track.images, track.votes, self.user))
+                    }
+                    self.tracks(tracks);
+                });
+        };
+
+        this.voted = (track) => {
+            for (let voter of track.votes()) {
+                if (voter.user == this.user().name)
+                    return true
+            }
+            return false
+        }
     }
 }
 
@@ -97,7 +108,7 @@ let myTracklistViewModel = new TracklistViewModel();
 window.myTracklistViewModel = myTracklistViewModel;
 window.Q = Q;
 
-myTracklistViewModel.load()
+myTracklistViewModel.load();
 
 
 ko.applyBindings(myTracklistViewModel)
