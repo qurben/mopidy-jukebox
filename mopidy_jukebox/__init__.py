@@ -51,7 +51,7 @@ class Extension(ext.Extension):
 
         Tracklist.update_tracklist(core.tracklist)
 
-        from .web import IndexHandler, TracklistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler, GoogleOAuth2LoginHandler, LoginHandler
+        from .web import IndexHandler, TracklistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler, GoogleOAuth2LoginHandler, LoginHandler, UserHandler
 
         return [
             (r'/', IndexHandler, {'version': __version__, 'core': core}),
@@ -60,6 +60,7 @@ class Extension(ext.Extension):
             (r'/vote', VoteHandler, {'core': core}),
             (r'/skip', SkipHandler, {'core': core}),
             (r'/search', SearchHandler, {'core': core}),
+            (r'/user', UserHandler, {'core': core}),
             (r'/auth', LoginHandler),
             (r'/auth/google', GoogleOAuth2LoginHandler, {
                 'google_oauth': app_config['google_oauth'],

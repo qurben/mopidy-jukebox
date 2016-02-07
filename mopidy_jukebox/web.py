@@ -153,6 +153,27 @@ class TrackHandler(web.RequestHandler):
         self.write(track_json(track))
 
 
+class UserHandler(web.RequestHandler):
+    def initialize(self, core):
+        self.core = core
+
+    @authenticate
+    def get(self):
+        """
+        Get information about the active user
+        :return:
+        """
+        user = self.request.session.user
+
+        self.set_header("Content-Type", "application/json")
+        self.write({
+            'name': user.name,
+            'picture': user.picture,
+            'email': user.email,
+            'uid': user.uid,
+        })
+
+
 class VoteHandler(web.RequestHandler):
     def initialize(self, core):
         self.core = core
