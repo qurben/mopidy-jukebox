@@ -31,11 +31,11 @@
         <ul data-bind="foreach: tracks">
             <li data-bind="with: track">
                 <img data-bind="attr: { src: images[0] }"/>
-                <div class="track-name" data-bind="text: track_name"></div>
+                <div class="name" data-bind="text: track_name"></div>
                 <div class="artists" data-bind="text: artists"></div>
-                <div class="vote" data-bind="click: $root.vote">vote</div>
+                <div class="vote" data-bind="click: $root.vote, attr: { class: $root.me">vote</div>
                 <ul class="votes" data-bind="foreach: votes">
-                    <li><img src="" title=""/></li>
+                    <li><img src="" title="" data-bind="attr: { src: picture, title: user }"/></li>
                 </ul>
             </li>
         </ul>

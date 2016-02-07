@@ -5,6 +5,17 @@ import ko from 'knockout'
 import Q from 'q'
 import 'q-xhr'
 
+class Track {
+    constructor(name, uri, artists, album, images, votes) {
+        this.name = ko.observable()
+        this.uri = ko.observable()
+        this.artists = ko.observable()
+        this.album = ko.observable()
+        this.images = ko.observable()
+        this.votes = ko.observableArray()
+    }
+}
+
 class TracklistViewModel {
     constructor() {
         this.tracks = ko.observableArray();
@@ -16,7 +27,11 @@ class TracklistViewModel {
         }).then((resp) => {
             Q.xhr.get('/jukebox-api/tracklist')
                 .then((resp) => {
-                    this.tracks(resp.data.tracklist);
+                    tracks = []
+                    for (let track of resp.data.tracklist) {
+                        tracks.push(new Track(track.track_name, track.track_uri, track.artists, track.album, track.images, track.votes))
+                    }
+                    this.tracks(tracks);
                 });
         }, (err) => {
             if (err.status == 409) // Vote already exists
