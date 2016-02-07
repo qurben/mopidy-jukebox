@@ -7,6 +7,7 @@ def votes_json(track):
     for vote in votes:
         yield {
             'user': vote.user.name,
+            'uid': vote.user.uid,
             'picture': vote.user.picture,
             'time': vote.timestamp.isoformat()
         }
