@@ -15,6 +15,7 @@ import json
 import uuid
 from datetime import datetime
 from functools import wraps
+from pprint import pprint
 
 from mopidy.models import ModelJSONEncoder
 from tornado import web, escape, gen, auth
@@ -202,6 +203,7 @@ class VoteHandler(web.RequestHandler):
         :return:
         """
         data = escape.json_decode(self.request.body)
+        pprint(data)
         track_uri = data['track']
         if not track_uri:
             self.write({"error": "'track' key not found"})
