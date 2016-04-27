@@ -4,7 +4,13 @@ import os
 
 from mopidy import config, ext
 
+from tornado.web import StaticFileHandler
+
 from .library import Tracklist
+from .frontend import JukeboxFrontend
+from .models import init
+from .web import IndexHandler, TracklistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler, \
+    GoogleOAuth2LoginHandler, LoginHandler, UserHandler
 
 __version__ = '0.0.1'
 
@@ -27,31 +33,41 @@ class Extension(ext.Extension):
 
     def setup(self, registry):
         # Main Jukebox frontend
-        from .frontend import JukeboxFrontend
         registry.add('frontend', JukeboxFrontend)
 
         # HTTP api for frontend
         registry.add('http:app', {
             'name': 'jukebox-api',
-            'factory': self.webapp,
+            'factory': self.api_app,
         })
-        directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
-        registry.add('http:static', dict(name=self.ext_name, path=directory))
 
-    def webapp(self, config, core):
-        app_config = config[self.ext_name]
+        # Static HTTP frontend
+        registry.add('http:app', {
+            'name': 'jukebox',
+            'factory': self.static_app,
+        })
+
+    @staticmethod
+    def static_app(conf, core):
+        static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+        return [
+            # If request contains a . it is a static file
+            (r'/(.*\..*)', StaticFileHandler, dict(path=static_dir)),
+            # Otherwise index.html will handle it
+            (r'/.*()', StaticFileHandler, dict(path=os.path.join(static_dir, 'index.html'))),
+        ]
+
+    def api_app(self, conf, core):
+        app_config = conf[self.ext_name]
         # Get proper db file
         if app_config['db']:
             db_file = app_config['db']
         else:
-            db_file = os.path.join(self.get_cache_dir(config), self.get_default_config()["db"])
+            db_file = os.path.join(self.get_cache_dir(conf), self.get_default_config()["db"])
 
-        from .models import init
         init(db_file)
 
         Tracklist.update_tracklist(core.tracklist)
-
-        from .web import IndexHandler, TracklistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler, GoogleOAuth2LoginHandler, LoginHandler, UserHandler
 
         return [
             (r'/', IndexHandler, {'version': __version__, 'core': core}),
