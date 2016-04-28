@@ -153,14 +153,15 @@ class TrackHandler(web.RequestHandler):
         Get information for a specific track
         :return:
         """
-        track_uri = self.get_body_argument('track', '')
-        if not track_uri:
+        try:
+            track_uri = self.get_body_argument('track', '')
+
+            track = self.core.library.lookup(track_uri).get()[0]
+
+            self.write(track_json(track))
+        except web.MissingArgumentError:
             self.write({"error": "'track' key not found"})
-            return self.set_status(400)
-
-        track = self.core.library.lookup(track_uri).get()[0]
-
-        self.write(track_json(track))
+            self.set_status(400)
 
 
 class UserHandler(web.RequestHandler):
@@ -195,15 +196,19 @@ class VoteHandler(web.RequestHandler):
         :return:
         """
         user = self.request.session.user
-        data = escape.json_decode(self.request.body)
 
-        track_uri = data['track']
-        vote = Vote.get(Vote.track_uri == track_uri)
-        track = self.core.library.lookup(track_uri).get()[0]
-        self.write({'track': track_json(track),
-                    'user': user.name,
-                    'timestamp': vote.timestamp.isoformat()})
-        self.set_header("Content-Type", "application/json")
+        try:
+            track_uri = self.get_body_argument('track')
+
+            vote = Vote.get(Vote.track_uri == track_uri)
+            track = self.core.library.lookup(track_uri).get()[0]
+            self.write({'track': track_json(track),
+                        'user': user.name,
+                        'timestamp': vote.timestamp.isoformat()})
+            self.set_header("Content-Type", "application/json")
+        except web.MissingArgumentError:
+            self.set_status(400)
+            self.write({"error": "'track' key not found"})
 
     @authenticate
     def put(self):
@@ -211,25 +216,23 @@ class VoteHandler(web.RequestHandler):
         Vote for a specific track
         :return:
         """
-        data = escape.json_decode(self.request.body)
-        pprint(data)
-        track_uri = data['track']
-        if not track_uri:
+        try:
+            track_uri = self.get_body_argument('track')
+            active_user = self.request.session.user
+
+            if Vote.select().where(Vote.track_uri == track_uri, Vote.user == active_user):
+                return self.set_status(409, 'Vote already exists')
+
+            my_vote = Vote(track_uri=track_uri, user=active_user, timestamp=datetime.now())
+            if my_vote.save() is 1:
+                # Add this track to now playing TODO: remove
+                Tracklist.update_tracklist(self.core.tracklist)
+                self.set_status(201)
+            else:
+                self.set_status(500)
+        except web.MissingArgumentError:
+            self.set_status(400)
             self.write({"error": "'track' key not found"})
-            return self.set_status(400)
-
-        active_user = self.request.session.user
-
-        if Vote.select().where(Vote.track_uri == track_uri, Vote.user == active_user):
-            return self.set_status(409, 'Vote already exists')
-
-        my_vote = Vote(track_uri=track_uri, user=active_user, timestamp=datetime.now())
-        if my_vote.save() is 1:
-            # Add this track to now playing TODO: remove
-            Tracklist.update_tracklist(self.core.tracklist)
-            self.set_status(201)
-        else:
-            self.set_status(500)
 
     @authenticate
     def delete(self):
