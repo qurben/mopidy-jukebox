@@ -15,7 +15,6 @@ import json
 import uuid
 from datetime import datetime
 from functools import wraps
-from pprint import pprint
 
 from mopidy.models import ModelJSONEncoder
 from tornado import web, escape, gen, auth
@@ -46,9 +45,6 @@ def authenticate(f):
 
 
 class LoginHandler(web.RequestHandler):
-    def initialize(self):
-        pass
-
     def get(self):
         cookie = self.get_cookie('session')
         if cookie:
@@ -95,7 +91,6 @@ class GoogleOAuth2LoginHandler(web.RequestHandler,
                 try:
                     user = User.get(uid=google_user['id'])
                 except User.DoesNotExist:
-                    print 'user does not exist'
                     user = User.create(uid=google_user['id'], name=google_user['name'], email=google_user['email'],
                                        picture=google_user['picture'])
                     user.save()
@@ -107,7 +102,6 @@ class GoogleOAuth2LoginHandler(web.RequestHandler,
                 session.save()
 
                 self.set_cookie('session', str(session.secret))
-
                 self.set_status(200)
                 self.write("Successfully logged in")
             except auth.AuthError:
