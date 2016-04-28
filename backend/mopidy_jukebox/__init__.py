@@ -8,7 +8,7 @@ from tornado.web import StaticFileHandler
 
 from .library import Tracklist
 from .frontend import JukeboxFrontend
-from .models import init
+from .models import initialize_db
 from .web import IndexHandler, TracklistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler, \
     GoogleOAuth2LoginHandler, LoginHandler, UserHandler
 
@@ -59,13 +59,8 @@ class Extension(ext.Extension):
 
     def api_app(self, conf, core):
         app_config = conf[self.ext_name]
-        # Get proper db file
-        if app_config['db']:
-            db_file = app_config['db']
-        else:
-            db_file = os.path.join(self.get_cache_dir(conf), self.get_default_config()["db"])
-
-        init(db_file)
+        # Get proper db file and initialize it
+        initialize_db(app_config['db'] or os.path.join(self.get_cache_dir(conf), self.get_default_config()["db"]))
 
         Tracklist.update_tracklist(core.tracklist)
 

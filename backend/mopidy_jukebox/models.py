@@ -43,7 +43,7 @@ class Session(Model):
         database = db
 
 
-def init(db_file):
+def initialize_db(db_file):
     # Create db
     db.init(db_file)
 
