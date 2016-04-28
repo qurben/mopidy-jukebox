@@ -72,7 +72,7 @@ class Extension(ext.Extension):
             (r'/skip', SkipHandler, {'core': core}),
             (r'/search', SearchHandler, {'core': core}),
             (r'/user', UserHandler, {'core': core}),
-            (r'/auth', LoginHandler),
+            (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
             (r'/auth/google', GoogleOAuth2LoginHandler, {
                 'google_oauth': app_config['google_oauth'],
