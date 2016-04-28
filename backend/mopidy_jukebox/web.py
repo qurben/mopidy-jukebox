@@ -242,20 +242,23 @@ class VoteHandler(web.RequestHandler):
         Delete the vote for a specific track
         :return:
         """
-        data = escape.json_decode(self.request.body)
-        track_uri = data['track']
-        if not track_uri:
-            self.write({"error": "'track' key not found"})
-            return self.set_status(400)
+        try:
+            track_uri = self.get_body_argument('track')
+            if not track_uri:
+                self.write({"error": "'track' key not found"})
+                return self.set_status(400)
 
-        active_user = self.request.session.user
+            active_user = self.request.session.user
 
-        q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == active_user)
-        if q.execute() is 0:
-            self.set_status(404, "No vote deleted")
-        else:
-            Tracklist.update_tracklist(self.core.tracklist)
-            self.set_status(204, "Vote deleted")
+            q = Vote.delete().where(Vote.track_uri == track_uri and Vote.user == active_user)
+            if q.execute() is 0:
+                self.set_status(404, "No vote deleted")
+            else:
+                Tracklist.update_tracklist(self.core.tracklist)
+                self.set_status(204, "Vote deleted")
+        except web.MissingArgumentError:
+            self.set_status(400)
+            self.write({"error":"'track' key not found"})
 
 
 class SkipHandler(web.RequestHandler):
