@@ -54,7 +54,8 @@ class LoginHandler(web.RequestHandler):
         if cookie:
             try:
                 session = Session.get(Session.secret == cookie)
-                self.redirect('/jukebox')
+                self.set_status(200)
+                self.write("Successfully logged in")
             except Session.DoesNotExist:
                 self.redirect('/jukebox-api/auth/google')
         else:
@@ -107,7 +108,8 @@ class GoogleOAuth2LoginHandler(web.RequestHandler,
 
                 self.set_cookie('session', str(session.secret))
 
-                self.redirect('/jukebox')
+                self.set_status(200)
+                self.write("Successfully logged in")
             except auth.AuthError:
                 self.set_status(400, "Bad Request")
                 self.write("400: Bad Request")
