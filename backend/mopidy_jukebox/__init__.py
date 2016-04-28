@@ -10,7 +10,7 @@ from .library import Tracklist
 from .frontend import JukeboxFrontend
 from .models import initialize_db
 from .web import IndexHandler, TracklistHandler, TrackHandler, VoteHandler, SkipHandler, SearchHandler, \
-    GoogleOAuth2LoginHandler, LoginHandler, UserHandler
+    GoogleOAuth2LoginHandler, LoginHandler, LogoutHandler, UserHandler
 
 __version__ = '0.0.1'
 
@@ -73,6 +73,7 @@ class Extension(ext.Extension):
             (r'/search', SearchHandler, {'core': core}),
             (r'/user', UserHandler, {'core': core}),
             (r'/auth', LoginHandler),
+            (r'/logout', LogoutHandler),
             (r'/auth/google', GoogleOAuth2LoginHandler, {
                 'google_oauth': app_config['google_oauth'],
                 'google_oauth_secret': app_config['google_oauth_secret'],

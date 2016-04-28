@@ -61,6 +61,15 @@ class LoginHandler(web.RequestHandler):
             self.redirect('/jukebox-api/auth/google')
 
 
+class LogoutHandler(web.RequestHandler):
+    @authenticate
+    def get(self):
+        self.request.session.delete()
+        self.clear_cookie('session')
+        self.set_status(200)
+        self.write("Successfully logged out")
+
+
 class GoogleOAuth2LoginHandler(web.RequestHandler,
                                auth.GoogleOAuth2Mixin):
     def initialize(self, google_oauth, google_oauth_secret):
